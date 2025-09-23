@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.headspace.com)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(open http://localhost:3000)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm run:*)",
+      "Bash(open http://localhost:3001)",
+      "Bash(open http://localhost:3000/dashboard)",
+      "Bash(open http://localhost:3000/login)",
+      "WebSearch",
+      "Bash(npm update:*)",
+      "Bash(cat:*)",
+      "Bash(node:*)",
+      "Bash(npm i:*)",
+      "Bash(sudo chown:*)",
+      "Bash(claude doctor)",
+      "Bash(curl:*)",
+      "Bash(open /Users/bradleywright/Desktop/little-things-app/test-localization.html)",
+      "Bash(open http://localhost:3000/settings)",
+      "Bash(npx tsc:*)",
+      "Read(//Users/bradleywright/Desktop/**)",
+      "WebFetch(domain:hopeful-psychology-331638.framer.app)",
+      "Bash(xargs kill:*)",
+      "Bash(pkill:*)",
+      "Read(//var/folders/l9/m8r22jzx2dl0tpptj13szgvr0000gn/T/TemporaryItems/NSIRD_screencaptureui_lqd2wA/**)",
+      "WebFetch(domain:imgs.search.brave.com)",
+      "Bash(top:*)",
+      "Bash(ulimit:*)",
+      "Bash(sysctl:*)",
+      "Bash(claude --version)",
+      "Bash(npm:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
