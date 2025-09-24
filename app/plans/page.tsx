@@ -318,9 +318,25 @@ export default function PlansPage() {
           </div>
           
           {savedPlans.length === 0 ? (
-            <div className="welcome-card">
-              <h3>No saved plans yet</h3>
-              <p>Create your own custom plan or use AI suggestions to get started!</p>
+            <div className="ai-suggestions">
+              <div className="ai-placeholder">
+                <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                  <Calendar size={20} />
+                </div>
+                <div className="ai-placeholder-content">
+                  <h4>No saved plans yet</h4>
+                  <p>Create your own custom plan or use AI suggestions to get started!</p>
+                  <div className="welcome-actions" style={{ marginTop: '20px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <button
+                      onClick={() => setIsCustomPlanModalOpen(true)}
+                      className="nav-framer-button nav-framer-button-solid"
+                    >
+                      <Plus size={16} />
+                      Create Plan
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="memories-preview">

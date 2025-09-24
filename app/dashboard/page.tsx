@@ -105,6 +105,34 @@ export default function DashboardPage() {
           <p>Welcome back! Here's what's happening with your relationships.</p>
         </div>
 
+        {/* Welcome Message for New Users */}
+        {memories.length === 0 && plans.length === 0 && !profile && (
+          <div className="dashboard-section">
+            <div className="section-header">
+              <h2>Welcome to Keeps!</h2>
+            </div>
+            <div className="ai-suggestions">
+              <div className="ai-placeholder">
+                <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                  <Heart size={20} />
+                </div>
+                <div className="ai-placeholder-content">
+                  <h4>Get Started</h4>
+                  <p>Get started by setting up your person's profile and adding your first memory or plan.</p>
+                  <div className="welcome-actions" style={{ marginTop: '20px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <Link href="/onboarding" className="nav-framer-button nav-framer-button-solid">
+                      Set Up Profile
+                    </Link>
+                    <Link href="/memories" className="nav-framer-button nav-framer-button-outline">
+                      Add First Memory
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Side by Side: At a Glance and Quick Memory */}
         <div className="dashboard-grid">
           {/* Stats Overview */}
@@ -300,24 +328,6 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-
-        {/* Welcome Message for New Users */}
-        {memories.length === 0 && plans.length === 0 && !profile && (
-          <div className="dashboard-section">
-            <div className="welcome-card">
-              <h3>Welcome to Little Things! 👋</h3>
-              <p>Get started by setting up your person's profile and adding your first memory or plan.</p>
-              <div className="welcome-actions">
-                <Link href="/onboarding" className="btn btn-primary">
-                  Set Up Profile
-                </Link>
-                <Link href="/memories" className="btn btn-glass">
-                  Add First Memory
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Quick Memory Modal */}
         <QuickMemoryModal

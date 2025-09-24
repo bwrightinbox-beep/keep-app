@@ -219,17 +219,24 @@ export default function MemoriesPage() {
           </div>
           
           {memories.length === 0 ? (
-            <div className="welcome-card">
-              <h3>Start Building Your Memory Collection</h3>
-              <p>Capture and organize meaningful moments with your partner. Every memory helps you understand and appreciate them better.</p>
-              <div className="welcome-actions">
-                <button 
-                  onClick={() => setIsQuickMemoryModalOpen(true)} 
-                  className="btn btn-primary"
-                >
-                  <Plus size={16} />
-                  Add First Memory
-                </button>
+            <div className="ai-suggestions">
+              <div className="ai-placeholder">
+                <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                  <Plus size={20} />
+                </div>
+                <div className="ai-placeholder-content">
+                  <h4>Start Building Your Memory Collection</h4>
+                  <p>Capture and organize meaningful moments with your partner. Every memory helps you understand and appreciate them better.</p>
+                  <div className="welcome-actions" style={{ marginTop: '20px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <button
+                      onClick={() => setIsQuickMemoryModalOpen(true)}
+                      className="nav-framer-button nav-framer-button-solid"
+                    >
+                      <Plus size={16} />
+                      Add First Memory
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ) : filteredAndSortedMemories.length === 0 ? (
