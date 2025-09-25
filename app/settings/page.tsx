@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Settings, User, Bell, Globe, Clock, Mail, Shield } from 'lucide-react'
@@ -58,7 +58,7 @@ const CURRENCIES = [
   { value: 'RUB', label: 'Russian Ruble (₽)' },
 ]
 
-export default function SettingsPage() {
+function SettingsPageContent() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
@@ -676,5 +676,21 @@ export default function SettingsPage() {
         </button>
       )}
     </div>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="page-wrapper">
+        <div className="container">
+          <div className="card">
+            Loading...
+          </div>
+        </div>
+      </div>
+    }>
+      <SettingsPageContent />
+    </Suspense>
   )
 }

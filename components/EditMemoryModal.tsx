@@ -69,8 +69,12 @@ export default function EditMemoryModal({ isOpen, onClose, onSave, memory }: Edi
       }
 
       const savedMemory = await dataService.updateMemory(user?.id || null, memory.id, updatedMemoryData)
-      onSave(savedMemory)
-      handleClose()
+      if (savedMemory) {
+        onSave(savedMemory)
+        handleClose()
+      } else {
+        setError('Failed to update memory. Please try again.')
+      }
     } catch (error) {
       console.error('Error updating memory:', error)
       setError('Failed to update memory. Please try again.')
