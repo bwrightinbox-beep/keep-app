@@ -46,55 +46,46 @@ export default function Navigation() {
 
   if (isMobile) {
     return (
-      <div>
-        <nav className="nav-mobile-header">
-          <div className="nav-mobile-brand">
-            <img src="/keeps-logo v2.png" alt="Keeps" className="nav-mobile-logo-image" />
-          </div>
-          
-          <button
-            className="nav-mobile-toggle"
-            onClick={toggleMobileMenu}
-            aria-expanded={isMobileMenuOpen}
-            aria-controls="mobile-menu"
-            aria-label={isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </nav>
+      <div className="nav-mobile-container">
+        <div className={`nav-mobile-wrapper ${isMobileMenuOpen ? 'expanded' : ''}`}>
+          <nav className="nav-mobile-header">
+            <div className="nav-mobile-brand">
+              <img src="/keeps-logo v2.png" alt="Keeps" className="nav-mobile-logo-image" />
+            </div>
 
-        {isMobileMenuOpen && (
-          <div 
-            className="nav-mobile-overlay"
-            role="dialog"
-            aria-modal="true"
-            onClick={closeMobileMenu}
-          >
-            <div 
-              className="nav-mobile-menu"
-              id="mobile-menu"
-              onClick={(e) => e.stopPropagation()}
+            <button
+              className="nav-mobile-toggle"
+              onClick={toggleMobileMenu}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
+              aria-label={isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
             >
-              <div className="nav-mobile-items">
-                {navItems.map((item) => (
-                  <Link 
-                    key={item.href}
-                    href={item.href} 
-                    className={`nav-mobile-link ${isActive(item.href) ? 'active' : ''}`}
-                    onClick={closeMobileMenu}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </nav>
 
-              {user && (
-                <div className="nav-mobile-user">
-                  <div className="nav-user-info">
+          <div className={`nav-mobile-dropdown ${isMobileMenuOpen ? 'open' : ''}`}>
+            <div className="nav-mobile-items">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`nav-mobile-link ${isActive(item.href) ? 'active' : ''}`}
+                  onClick={closeMobileMenu}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
+            {user && (
+              <div className="nav-mobile-user">
+                <div className="nav-user-info">
+                  <div className="nav-user-details">
                     <User size={16} />
                     <span>{user.email}</span>
                   </div>
-                  
+
                   <button
                     className="nav-signout-button"
                     onClick={() => {
@@ -106,10 +97,10 @@ export default function Navigation() {
                     Sign Out
                   </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     )
   }

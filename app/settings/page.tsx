@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Settings, User, Bell, Globe, Clock, Mail, Shield } from 'lucide-react'
 import Navigation from '@/components/Navigation'
 import { useAuth } from '@/lib/auth-context'
@@ -59,6 +60,7 @@ const CURRENCIES = [
 
 export default function SettingsPage() {
   const { user } = useAuth()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [settings, setSettings] = useState<AppSettings>({
@@ -68,13 +70,33 @@ export default function SettingsPage() {
   })
   const [partnerProfile, setPartnerProfile] = useState<PartnerProfile | null>(null)
 
-  const [activeSection, setActiveSection] = useState<'profile' | 'myperson' | 'notifications' | 'preferences' | 'privacy'>('profile')
+  const [activeSection, setActiveSection] = useState<'profile' | 'myperson' | 'notifications' | 'preferences' | 'privacy'>(() => {
+    if (typeof window !== 'undefined') {
+      const tab = searchParams.get('tab')
+      if (tab === 'myperson' || tab === 'notifications' || tab === 'preferences' || tab === 'privacy') {
+        return tab
+      }
+    }
+    return 'profile'
+  })
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // Handle client-side mounting to prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Handle URL parameter changes
+  useEffect(() => {
+    if (mounted) {
+      const tab = searchParams.get('tab')
+      if (tab === 'myperson' || tab === 'notifications' || tab === 'preferences' || tab === 'privacy') {
+        setActiveSection(tab)
+      } else if (!tab) {
+        setActiveSection('profile')
+      }
+    }
+  }, [searchParams, mounted])
 
   // Load settings from Supabase
   useEffect(() => {
@@ -292,46 +314,48 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="settings-section-content">
-                  <div className="settings-field">
-                    <label>
-                      Your Name
-                    </label>
-                    <input
-                      type="text"
-                      value={settings.userName || ''}
-                      onChange={(e) => updateSetting('userName', e.target.value)}
-                      placeholder="Enter your name"
-                    />
-                  </div>
+                  <div className="profile-fields-grid">
+                    <div className="settings-field">
+                      <label>
+                        Your Name
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.userName || ''}
+                        onChange={(e) => updateSetting('userName', e.target.value)}
+                        placeholder="Enter your name"
+                      />
+                    </div>
 
-                  <div className="settings-field">
-                    <label>
-                      Account Email
-                    </label>
-                    <input
-                      type="text"
-                      value={user?.email || 'Not signed in'}
-                      disabled
-                      readOnly
-                    />
-                    <p className="settings-field-description">
-                      Your account email address
-                    </p>
-                  </div>
+                    <div className="settings-field">
+                      <label>
+                        Account Email
+                      </label>
+                      <input
+                        type="text"
+                        value={user?.email || 'Not signed in'}
+                        disabled
+                        readOnly
+                      />
+                      <p className="settings-field-description">
+                        Your account email address
+                      </p>
+                    </div>
 
-                  <div className="settings-field">
-                    <label>
-                      Plan Type
-                    </label>
-                    <input
-                      type="text"
-                      value="Free Plan"
-                      disabled
-                      readOnly
-                    />
-                    <p className="settings-field-description">
-                      AI planning features will be available with paid plans
-                    </p>
+                    <div className="settings-field">
+                      <label>
+                        Plan Type
+                      </label>
+                      <input
+                        type="text"
+                        value="Free Plan"
+                        disabled
+                        readOnly
+                      />
+                      <p className="settings-field-description">
+                        AI planning features will be available with paid plans
+                      </p>
+                    </div>
                   </div>
 
                   <div className="settings-info-box">

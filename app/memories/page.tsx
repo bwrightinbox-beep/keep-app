@@ -3,11 +3,12 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Navigation from '@/components/Navigation'
 import QuickMemoryModal from '@/components/QuickMemoryModal'
+import EditMemoryModal from '@/components/EditMemoryModal'
 import ModernLoading from '@/components/ui/ModernLoading'
 import { useAuth } from '@/lib/auth-context'
 import { dataService, type Memory } from '@/lib/data-service'
 import { formatShortDate } from '@/lib/localization'
-import { Plus, Search, Filter, ArrowUpDown } from 'lucide-react'
+import { Plus, Search, Filter, ArrowUpDown, Edit, Trash2 } from 'lucide-react'
 
 export default function MemoriesPage() {
   const [memories, setMemories] = useState<Memory[]>([])
@@ -17,6 +18,8 @@ export default function MemoriesPage() {
   const [filterRating, setFilterRating] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [isQuickMemoryModalOpen, setIsQuickMemoryModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingMemory, setEditingMemory] = useState<Memory | null>(null)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -88,6 +91,36 @@ export default function MemoriesPage() {
 
   const handleQuickMemorySave = (newMemory: Memory) => {
     setMemories([newMemory, ...memories])
+  }
+
+  const handleEditMemory = (memory: Memory) => {
+    setEditingMemory(memory)
+    setIsEditModalOpen(true)
+  }
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false)
+    setEditingMemory(null)
+  }
+
+  const handleEditMemorySave = (updatedMemory: Memory) => {
+    setMemories(memories.map(m => m.id === updatedMemory.id ? updatedMemory : m))
+  }
+
+  const handleDeleteMemory = async (memoryId: string) => {
+    if (confirm('Are you sure you want to delete this memory? This action cannot be undone.')) {
+      try {
+        const success = await dataService.deleteMemory(user?.id || null, memoryId)
+        if (success) {
+          setMemories(memories.filter(m => m.id !== memoryId))
+        } else {
+          alert('Failed to delete memory. Please try again.')
+        }
+      } catch (error) {
+        console.error('Error deleting memory:', error)
+        alert('Failed to delete memory. Please try again.')
+      }
+    }
   }
 
   if (loading) {
@@ -261,7 +294,25 @@ export default function MemoriesPage() {
               {filteredAndSortedMemories.map((memory) => (
                 <div key={memory.id} className="memory-card">
                   <div className="memory-content">
-                    <h4>{memory.title}</h4>
+                    <div className="memory-header">
+                      <h4>{memory.title}</h4>
+                      <div className="memory-actions">
+                        <button
+                          onClick={() => handleEditMemory(memory)}
+                          className="memory-action-btn edit-btn"
+                          title="Edit memory"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMemory(memory.id)}
+                          className="memory-action-btn delete-btn"
+                          title="Delete memory"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
                     {memory.description && (
                       <p>{memory.description.length > 150 ? `${memory.description.substring(0, 150)}...` : memory.description}</p>
                     )}
@@ -288,6 +339,14 @@ export default function MemoriesPage() {
           isOpen={isQuickMemoryModalOpen}
           onClose={handleQuickMemoryClose}
           onSave={handleQuickMemorySave}
+        />
+
+        {/* Edit Memory Modal */}
+        <EditMemoryModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          onSave={handleEditMemorySave}
+          memory={editingMemory}
         />
       </div>
     </div>

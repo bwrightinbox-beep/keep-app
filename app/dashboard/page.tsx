@@ -432,7 +432,7 @@ export default function DashboardPage() {
             <div className="dashboard-section">
               <div className="section-header">
                 <h2>Important Dates</h2>
-                <Link href="/settings?tab=person" className="btn btn-secondary">
+                <Link href="/settings?tab=myperson" className="nav-framer-button nav-framer-button-solid">
                   Manage Dates
                 </Link>
               </div>
