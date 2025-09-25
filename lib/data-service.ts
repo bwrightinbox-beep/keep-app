@@ -238,7 +238,7 @@ class DataService {
 
           const { error } = await this.supabase
             .from('memories')
-            .insert([insertData])
+            .insert([insertData] as any)
 
           if (error) {
             console.error('[DataService] Error migrating memory:', memory.title, error)
@@ -743,7 +743,7 @@ class DataService {
       console.log('[DataService] Creating new profile with:', mappedData)
       const { data, error } = await (this.supabase as any)
         .from('partner_profiles')
-        .insert([mappedData])
+        .insert([mappedData] as any)
         .select()
         .single()
 
@@ -878,7 +878,7 @@ class DataService {
 
     const { data, error } = await (this.supabase as any)
       .from('plans')
-      .insert([insertData])
+      .insert([insertData] as any)
       .select()
       .single()
 
@@ -1066,7 +1066,7 @@ class DataService {
               ...settings,
               user_id: userId
             }
-          ])
+          ] as any)
           .select()
           .single()
 
