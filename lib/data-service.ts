@@ -77,86 +77,191 @@ class DataService {
 
   private async ensureUserExists(userId: string, userEmail?: string): Promise<boolean> {
     try {
-      // Check if user exists
-      const { data: existingUser, error: fetchError } = await this.supabase
-        .from('users')
-        .select('id')
-        .eq('id', userId)
-        .single()
+      console.log('[DataService] Ensuring user exists via API:', userId)
 
-      if (existingUser) {
-        console.log('[DataService] User already exists')
-        return true
-      }
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error('[DataService] Error checking user existence:', fetchError)
-        return false
-      }
-
-      // User doesn't exist, create them
-      console.log('[DataService] Creating user record:', userId)
-      const { error: insertError } = await this.supabase
-        .from('users')
-        .insert([{
-          id: userId,
+      // Call the API route to create user with admin privileges
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
           email: userEmail || 'unknown@example.com'
-        }] as any)
+        })
+      })
 
-      if (insertError) {
-        console.error('[DataService] Error creating user:', insertError)
+      const result = await response.json()
+
+      if (!response.ok) {
+        console.error('[DataService] API error ensuring user exists:', result.error)
         return false
       }
 
-      console.log('[DataService] User created successfully')
+      console.log('[DataService] User ensured successfully:', result.message)
       return true
     } catch (error) {
-      console.error('[DataService] Exception ensuring user exists:', error)
+      console.error('[DataService] Exception calling user API:', error)
       return false
     }
   }
 
   async getMemories(userId: string | null = null): Promise<Memory[]> {
+    console.log('[DataService] getMemories called with userId:', userId)
+    console.log('[DataService] isAuthenticated check:', this.isAuthenticated(userId))
+
     if (!this.isAuthenticated(userId)) {
       // Fallback to localStorage for unauthenticated users
       try {
+        console.log('[DataService] Using localStorage fallback - user not authenticated')
         const stored = localStorage.getItem(this.getStorageKey('memories'))
-        return stored ? JSON.parse(stored) : []
+        const memories = stored ? JSON.parse(stored) : []
+        console.log('[DataService] Loaded memories from localStorage:', memories.length)
+        return memories
       } catch (error) {
         console.error('Error loading memories from localStorage:', error)
         return []
       }
     }
-    const { data, error } = await this.supabase
-      .from('memories')
-      .select('*')
-      .eq('user_id', userId!)
-      .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error('Error fetching memories:', error)
-      return []
+    // Use database for authenticated users
+    console.log('[DataService] Using database for authenticated user')
+    try {
+      const { data, error } = await this.supabase
+        .from('memories')
+        .select('*')
+        .eq('user_id', userId!)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('[DataService] Database error, falling back to localStorage:', error)
+        // Fallback to localStorage if database fails
+        try {
+          const stored = localStorage.getItem(this.getStorageKey('memories'))
+          const memories = stored ? JSON.parse(stored) : []
+          console.log('[DataService] Loaded memories from localStorage fallback:', memories.length)
+          return memories
+        } catch (localError) {
+          console.error('Error loading from localStorage fallback:', localError)
+          return []
+        }
+      }
+
+      // Map database fields to app expected format
+      const mappedMemories = (data as any[] || []).map((item: any) => ({
+        id: item.id.toString(),
+        title: item.title,
+        description: item.body || '', // Get description from body field
+        category: item.tags && item.tags.length > 0 ? item.tags[0] : 'general',
+        rating: item.importance === 'high' ? 5 : item.importance === 'medium' ? 3 : 1,
+        date: item.created_at,
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      }))
+
+      console.log('[DataService] Loaded memories from database:', mappedMemories.length)
+
+      // If database is empty but localStorage has memories, migrate them
+      if (mappedMemories.length === 0) {
+        console.log('[DataService] Database empty, checking localStorage for migration')
+        await this.migrateLocalStorageMemoriesToDatabase(userId!)
+        // After migration, try loading from database one more time (without recursion)
+        try {
+          const { data: newData, error: newError } = await this.supabase
+            .from('memories')
+            .select('*')
+            .eq('user_id', userId!)
+            .order('created_at', { ascending: false })
+
+          if (!newError && newData) {
+            const newMappedMemories = (newData as any[] || []).map((item: any) => ({
+              id: item.id.toString(),
+              title: item.title,
+              description: item.body || '',
+              category: item.tags && item.tags.length > 0 ? item.tags[0] : 'general',
+              rating: item.importance === 'high' ? 5 : item.importance === 'medium' ? 3 : 1,
+              date: item.created_at,
+              created_at: item.created_at,
+              updated_at: item.updated_at
+            }))
+            console.log('[DataService] Loaded memories after migration:', newMappedMemories.length)
+            return newMappedMemories
+          }
+        } catch (migrationError) {
+          console.error('[DataService] Error loading after migration:', migrationError)
+        }
+      }
+
+      return mappedMemories
+    } catch (error) {
+      console.error('[DataService] Exception accessing database, using localStorage:', error)
+      try {
+        const stored = localStorage.getItem(this.getStorageKey('memories'))
+        const memories = stored ? JSON.parse(stored) : []
+        console.log('[DataService] Loaded memories from localStorage exception fallback:', memories.length)
+        return memories
+      } catch (localError) {
+        console.error('Error loading from localStorage exception fallback:', localError)
+        return []
+      }
     }
+  }
 
-    // Map database fields to app expected format
-    const mappedMemories = (data as any[] || []).map((item: any) => ({
-      id: item.id.toString(),
-      title: item.title,
-      description: item.body || '', // Get description from body field
-      category: item.tags && item.tags.length > 0 ? item.tags[0] : 'general',
-      rating: item.importance === 'high' ? 5 : item.importance === 'medium' ? 3 : 1,
-      date: item.created_at,
-      created_at: item.created_at,
-      updated_at: item.updated_at
-    }))
+  private async migrateLocalStorageMemoriesToDatabase(userId: string): Promise<void> {
+    console.log('[DataService] Starting migration of localStorage memories to database')
+    try {
+      const stored = localStorage.getItem(this.getStorageKey('memories'))
+      if (!stored) {
+        console.log('[DataService] No localStorage memories to migrate')
+        return
+      }
 
-    return mappedMemories
+      const localMemories = JSON.parse(stored) as Memory[]
+      console.log('[DataService] Found', localMemories.length, 'memories to migrate')
+
+      if (localMemories.length === 0) {
+        console.log('[DataService] No memories to migrate')
+        return
+      }
+
+      // Migrate each memory to database
+      for (const memory of localMemories) {
+        try {
+          const insertData = {
+            title: memory.title,
+            body: memory.description || '',
+            tags: memory.category ? [memory.category] : [],
+            importance: memory.rating && memory.rating >= 4 ? 'high' :
+                       memory.rating && memory.rating >= 3 ? 'medium' : 'low',
+            user_id: userId
+          }
+
+          const { error } = await this.supabase
+            .from('memories')
+            .insert([insertData])
+
+          if (error) {
+            console.error('[DataService] Error migrating memory:', memory.title, error)
+          } else {
+            console.log('[DataService] Successfully migrated memory:', memory.title)
+          }
+        } catch (error) {
+          console.error('[DataService] Exception migrating memory:', memory.title, error)
+        }
+      }
+
+      console.log('[DataService] Migration completed, clearing localStorage')
+      // Clear localStorage after successful migration
+      localStorage.removeItem(this.getStorageKey('memories'))
+    } catch (error) {
+      console.error('[DataService] Migration failed:', error)
+    }
   }
 
   async saveMemory(userId: string | null, memory: Omit<Memory, 'id' | 'created_at' | 'updated_at'>): Promise<Memory> {
     console.log('[DataService] saveMemory called with:', { userId, memory })
     console.log('[DataService] isAuthenticated:', this.isAuthenticated(userId))
-    
+
     // Validate input
     if (!memory.title?.trim()) {
       throw createAppError(
@@ -166,10 +271,10 @@ class DataService {
         false
       );
     }
-    
+
     if (!this.isAuthenticated(userId)) {
       // Fallback to localStorage for unauthenticated users
-      console.log('[DataService] Using localStorage fallback')
+      console.log('[DataService] Using localStorage fallback - user not authenticated')
       try {
         const memories = await this.getMemories(null)
         console.log('[DataService] Current memories from localStorage:', memories.length)
@@ -214,12 +319,12 @@ class DataService {
         // Map category to first tag in tags array for now
         tags: memory.category ? [memory.category] : [],
         // Store rating in importance field (mapping 1-5 to low/medium/high)
-        importance: memory.rating && memory.rating >= 4 ? 'high' : 
+        importance: memory.rating && memory.rating >= 4 ? 'high' :
                    memory.rating && memory.rating >= 3 ? 'medium' : 'low',
         user_id: userId
       }
       console.log('[DataService] Inserting into Supabase (mapped fields):', insertData)
-      
+
       const { data, error } = await this.supabase
         .from('memories')
         .insert([insertData] as any)
@@ -259,7 +364,7 @@ class DataService {
       if (error instanceof Error && error.name === 'AppError') {
         throw error; // Re-throw AppErrors
       }
-      
+
       const appError = handleError(error, 'DataService.saveMemory.supabase');
       throw createAppError(
         errorCodes.DATABASE_ERROR,

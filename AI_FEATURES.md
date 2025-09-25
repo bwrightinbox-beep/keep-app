@@ -1,16 +1,26 @@
 # AI-Powered Plan Suggestions
 
-The Keeps app now includes intelligent plan suggestions powered by OpenAI's GPT-4o-mini model!
+The Keeps app features an advanced AI algorithm that requires **7+ memories** to generate deeply personalized plan suggestions using OpenAI's GPT-4o-mini model!
 
-## 🚀 How It Works
+## 🧠 Core Algorithm - The 7+ Memory Requirement
 
-The AI analyzes your memories about your partner to suggest personalized date ideas and thoughtful gestures. It considers:
+**Why 7 memories?** Our AI needs substantial data to understand your partner's unique personality, preferences, and patterns. With fewer memories, suggestions would be generic. With 7+ memories, the AI can:
 
-- **Memory patterns** - What they like, love, and enjoy
-- **Love languages** - How they prefer to give and receive affection  
-- **Recent trends** - What you've noticed about them lately
-- **Location** - Local suggestions based on your current location
-- **Budget and time** - Realistic options that fit your lifestyle
+- **Identify deep patterns** across all your memories, not just recent ones
+- **Extract emotional keywords** and relationship insights
+- **Understand seasonal and temporal preferences**
+- **Create highly personalized suggestions** with 70%+ confidence scores
+
+## 🚀 Enhanced Analysis Process
+
+The AI performs comprehensive analysis of ALL your memories to identify:
+
+- **Memory patterns** - Recurring themes, preferences, and interests
+- **Emotional insights** - How your partner responds to different experiences
+- **Activity preferences** - Specific types of activities they enjoy
+- **Temporal patterns** - Seasonal preferences and timing insights
+- **Local opportunities** - Nearby businesses and venues that match their interests
+- **Relationship dynamics** - Communication style and attention to detail
 
 ## 🛠️ Setup
 
@@ -21,9 +31,10 @@ The AI analyzes your memories about your partner to suggest personalized date id
 
 2. **Configure Environment**:
    - Copy `.env.example` to `.env.local`
-   - Add your API key:
+   - Add your API keys:
      ```
      NEXT_PUBLIC_OPENAI_API_KEY=sk-your-api-key-here
+     NEXT_PUBLIC_GOOGLE_PLACES_API_KEY=your-google-places-api-key-here
      ```
 
 3. **Restart the Development Server**:
@@ -33,20 +44,24 @@ The AI analyzes your memories about your partner to suggest personalized date id
 
 ## 💡 Usage
 
-1. **Set up your partner's profile** in "My Person" 
-2. **Add memories** about what they like and enjoy
-3. **Go to Plans page** and click "AI Suggestions"
-4. **Review personalized suggestions** with confidence scores
-5. **Save the ones you like** to your plan library
+1. **Set up your partner's profile** in "My Person"
+2. **Add at least 7 memories** about what they like, enjoy, and experiences you've shared
+3. **Build your memory collection** - the more detailed memories you add, the better the AI gets!
+4. **Go to Plans page** and click "AI Suggestions" (unlocked at 7+ memories)
+5. **Review deeply personalized suggestions** with high confidence scores (70%+)
+6. **Get local recommendations** based on your location and their preferences
+7. **Save the ones you love** to your plan library
 
-## ✨ Features
+## ✨ Advanced Features
 
-- **Smart Analysis**: Identifies patterns in your memories
-- **Confidence Scoring**: Shows how well each suggestion matches
-- **Location Awareness**: Includes local options when available
-- **Detailed Steps**: Complete instructions for each suggestion
-- **Reasoning**: Explains why each plan was suggested
-- **Easy Saving**: One-click to add to your saved plans
+- **7+ Memory Requirement**: Ensures high-quality, personalized suggestions
+- **Comprehensive Analysis**: Uses ALL memories, not just recent ones
+- **Deep Pattern Recognition**: Identifies emotional, activity, and temporal patterns
+- **Local Business Integration**: Google Places API for venue recommendations
+- **High Confidence Scoring**: 70%+ confidence scores based on memory matches
+- **Detailed Reasoning**: Explains connections to specific memories and patterns
+- **Location-Aware**: Incorporates nearby restaurants, activities, and venues
+- **Memory-Driven**: Each suggestion references specific memories and preferences
 
 ## 🎯 Example
 
@@ -79,10 +94,10 @@ OpenAI charges per API request. Typical costs:
 - Ensure the key starts with `sk-`
 - Restart the development server
 
-**"No AI suggestions were generated"**
-- Add more memories (need at least 2-3)
-- Complete your partner's profile
-- Check your internet connection
+**"Insufficient memories for AI analysis"**
+- You need at least 7 memories to unlock AI suggestions
+- Add more detailed memories about your partner's preferences, experiences, and interests
+- The more memories you add, the better the AI suggestions become
 
 **API key errors**
 - Verify the key is correct

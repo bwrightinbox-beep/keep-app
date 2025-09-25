@@ -9,6 +9,7 @@ import ModernLoading from '@/components/ui/ModernLoading'
 import { useAuth } from '@/lib/auth-context'
 import { dataService } from '@/lib/data-service'
 import { formatCurrency, formatShortDate } from '@/lib/localization'
+import { generateAISuggestions, getCurrentLocation } from '@/lib/ai-suggestions'
 import type { Plan, Memory, PartnerProfile } from '@/lib/data-service'
 
 
@@ -126,12 +127,39 @@ export default function PlansPage() {
 
   // AI Suggestion functions
   const generateAIPlans = async () => {
-    if (!partnerProfile || memories.length === 0) {
-      alert('You need memories and a partner profile to generate AI suggestions! Visit the "My Person" page to set up a profile and add some memories first.')
+    if (!partnerProfile) {
+      alert('Please set up your partner\'s profile first! Visit the "My Person" page to complete the profile setup.')
       return
     }
 
-    alert('AI suggestions feature coming soon! For now, try the template plans below.')
+    if (memories.length < 7) {
+      alert(`You need at least 7 memories to generate AI suggestions. You currently have ${memories.length} memories. Add ${7 - memories.length} more memories to unlock this feature!`)
+      return
+    }
+
+    setIsGeneratingAI(true)
+    setShowAISuggestions(false)
+
+    try {
+      // Get user location for local suggestions
+      const location = await getCurrentLocation()
+      setUserLocation(location)
+
+      // Generate AI suggestions using enhanced algorithm
+      const suggestions = await generateAISuggestions(memories, partnerProfile, location || undefined)
+
+      if (suggestions.length > 0) {
+        setAiSuggestions(suggestions)
+        setShowAISuggestions(true)
+      } else {
+        alert('Unable to generate AI suggestions at this time. Please try again later or check your OpenAI API key configuration.')
+      }
+    } catch (error) {
+      console.error('Error generating AI suggestions:', error)
+      alert(error instanceof Error ? error.message : 'Failed to generate AI suggestions. Please try again.')
+    } finally {
+      setIsGeneratingAI(false)
+    }
   }
 
   const saveAISuggestion = async (suggestion: PlanSuggestion) => {
@@ -168,25 +196,83 @@ export default function PlansPage() {
           <p>Create meaningful gestures and memorable experiences that strengthen your relationships</p>
         </div>
 
+        {/* Memory Progress (only show if < 7 memories) */}
+        {memories.length < 7 && (
+          <div className="dashboard-section">
+            <div className="section-header">
+              <h2>Unlock AI Suggestions</h2>
+            </div>
+            <div className="ai-suggestions">
+              <div className="ai-placeholder">
+                <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                  <Brain size={20} />
+                </div>
+                <div className="ai-placeholder-content">
+                  <h4>Build Your Memory Collection</h4>
+                  <p>Our AI needs at least 7 memories to understand your partner's preferences and generate truly personalized suggestions. The more memories you add, the better the recommendations!</p>
+                  <div className="memory-progress" style={{ margin: '16px 0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Progress: {memories.length}/7 memories</span>
+                      <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>{Math.round((memories.length / 7) * 100)}%</span>
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: '8px',
+                      backgroundColor: '#e5e7eb',
+                      borderRadius: '4px',
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{
+                        width: `${(memories.length / 7) * 100}%`,
+                        height: '100%',
+                        backgroundColor: '#10b981',
+                        borderRadius: '4px',
+                        transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                  </div>
+                  <div className="welcome-actions" style={{ marginTop: '20px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <Link href="/memories" className="nav-framer-button nav-framer-button-solid">
+                      <Plus size={16} />
+                      Add More Memories
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="dashboard-section">
           <div className="section-header">
             <h2>Quick Actions</h2>
           </div>
           <div className="stats-grid">
-            <button 
+            <button
               onClick={generateAIPlans}
-              disabled={isGeneratingAI || memories.length === 0}
+              disabled={isGeneratingAI || memories.length < 7}
               className="stat-card"
-              style={{ cursor: isGeneratingAI || memories.length === 0 ? 'not-allowed' : 'pointer' }}
+              style={{
+                cursor: isGeneratingAI || memories.length < 7 ? 'not-allowed' : 'pointer',
+                opacity: memories.length < 7 ? 0.7 : 1
+              }}
             >
-              <div className="stat-icon" style={{ background: 'black' }}>
-                {isGeneratingAI ? <RefreshCw size={20} /> : <Sparkles size={20} />}
+              <div className="stat-icon" style={{
+                background: memories.length >= 7 ? 'black' : '#6b7280'
+              }}>
+                {isGeneratingAI ? <RefreshCw size={20} className="animate-spin" /> : <Sparkles size={20} />}
               </div>
               <div className="stat-content">
-                <div className="stat-label">{isGeneratingAI ? 'Generating...' : 'AI Suggestions'}</div>
+                <div className="stat-label">
+                  {isGeneratingAI ? 'Generating AI Plans...' :
+                   memories.length >= 7 ? 'AI Suggestions' :
+                   `AI Suggestions (${memories.length}/7)`}
+                </div>
                 <div className="stat-number" style={{ fontSize: '0.875rem' }}>
-                  {memories.length === 0 ? 'Add memories first' : 'Get personalized ideas'}
+                  {memories.length === 0 ? 'Add memories to unlock' :
+                   memories.length < 7 ? `Need ${7 - memories.length} more memories` :
+                   'Get personalized ideas'}
                 </div>
               </div>
             </button>
