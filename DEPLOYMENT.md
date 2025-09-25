@@ -1,4 +1,4 @@
-# Deployment Guide - Little Things App
+# Deployment Guide - Keeps App
 
 ## Prerequisites
 

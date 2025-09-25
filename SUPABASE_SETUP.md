@@ -1,6 +1,6 @@
 # Supabase Setup Guide
 
-This guide will walk you through setting up Supabase for the Little Things app, including database creation, authentication, and deployment.
+This guide will walk you through setting up Supabase for the Keeps app, including database creation, authentication, and deployment.
 
 ## 🚀 Quick Setup
 
@@ -10,7 +10,7 @@ This guide will walk you through setting up Supabase for the Little Things app, 
 2. Click "New Project"
 3. Choose your organization
 4. Project Details:
-   - **Name**: `little-things-app`
+   - **Name**: `keeps-app`
    - **Database Password**: Generate a strong password and save it
    - **Region**: Choose closest to your users
 5. Click "Create new project"

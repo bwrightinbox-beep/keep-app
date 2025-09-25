@@ -70,7 +70,7 @@ class DataService {
   }
 
   private getStorageKey(type: string): string {
-    const key = `little-things-${type}`
+    const key = `keeps-${type}`
     console.log('[DataService] Storage key for', type, ':', key)
     return key
   }
@@ -423,7 +423,24 @@ class DataService {
       console.log('[DataService] Fetching partner profile from DB for user:', userId)
       const { data, error } = await this.supabase
         .from('partner_profiles')
-        .select('*')
+        .select(`
+          id,
+          user_id,
+          name,
+          birthday,
+          anniversary,
+          favorite_color,
+          favorite_food,
+          favorite_hobbies,
+          notes,
+          important_dates,
+          love_languages,
+          favorite_things,
+          dislikes,
+          sizes,
+          created_at,
+          updated_at
+        `)
         .eq('user_id', userId!)
         .single()
         
@@ -448,10 +465,10 @@ class DataService {
       const mappedProfile: PartnerProfile = {
         id: dataAny.id?.toString(),
         name: dataAny.name || '',
-        favoriteColor: dataAny.favorite_color || dataAny.favouriteColor || 'Unknown',
-        favoriteFood: dataAny.favorite_food || dataAny.favouriteFood || 'Unknown',
+        favoriteColor: dataAny.favorite_color || dataAny.favouriteColor || '',
+        favoriteFood: dataAny.favorite_food || dataAny.favouriteFood || '',
         favoriteHobbies: dataAny.favorite_hobbies || dataAny.favourite_hobbies || dataAny.love_languages || [],
-        importantDates: [
+        importantDates: dataAny.important_dates || [
           ...(dataAny.birthday ? [{ date: dataAny.birthday, description: 'Birthday' }] : []),
           ...(dataAny.anniversary ? [{ date: dataAny.anniversary, description: 'Anniversary' }] : [])
         ],
@@ -494,7 +511,7 @@ class DataService {
 
   async savePartnerProfile(userId: string | null, profile: PartnerProfile): Promise<PartnerProfile | null> {
     console.log('[DataService] savePartnerProfile called with userId:', userId)
-    console.log('[DataService] savePartnerProfile profile:', profile)
+    console.log('[DataService] savePartnerProfile profile:', JSON.stringify(profile, null, 2))
     console.log('[DataService] isAuthenticated:', this.isAuthenticated(userId))
     
     // Clear cache when saving
@@ -546,6 +563,7 @@ class DataService {
     if (profile.favoriteThings) mappedData.favorite_things = profile.favoriteThings
     if (profile.dislikes) mappedData.dislikes = profile.dislikes
     if (profile.sizes && Object.keys(profile.sizes).length) mappedData.sizes = profile.sizes
+    if (profile.importantDates?.length) mappedData.important_dates = profile.importantDates
     
     console.log('[DataService] Mapped data for database:', mappedData)
 

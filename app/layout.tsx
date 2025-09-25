@@ -6,7 +6,7 @@ import { AuthProvider } from '../lib/auth-context'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Little Things - Remember what matters',
+  title: 'Keeps - Remember what matters',
   description: 'Help remember meaningful details about your partner',
 }
 

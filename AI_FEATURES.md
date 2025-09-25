@@ -1,6 +1,6 @@
 # AI-Powered Plan Suggestions
 
-The Little Things app now includes intelligent plan suggestions powered by OpenAI's GPT-4o-mini model!
+The Keeps app now includes intelligent plan suggestions powered by OpenAI's GPT-4o-mini model!
 
 ## 🚀 How It Works
 

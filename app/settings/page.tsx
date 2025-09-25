@@ -203,7 +203,7 @@ export default function SettingsPage() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `little-things-backup-${new Date().toISOString().split('T')[0]}.json`
+      a.download = `keeps-backup-${new Date().toISOString().split('T')[0]}.json`
       a.click()
       URL.revokeObjectURL(url)
     } catch (error) {
@@ -252,7 +252,7 @@ export default function SettingsPage() {
               Settings
             </h1>
             <p>
-              Customize your Little Things experience
+              Customize your Keeps experience
             </p>
           </div>
         </div>
@@ -366,24 +366,55 @@ export default function SettingsPage() {
 
                   <div className="settings-field">
                     <label>
-                      Birthday
+                      Important Dates
                     </label>
-                    <input
-                      type="date"
-                      value={partnerProfile?.birthday || ''}
-                      onChange={(e) => updatePartnerProfile('birthday', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="settings-field">
-                    <label>
-                      Anniversary
-                    </label>
-                    <input
-                      type="date"
-                      value={partnerProfile?.anniversary || ''}
-                      onChange={(e) => updatePartnerProfile('anniversary', e.target.value)}
-                    />
+                    <div className="important-dates-container">
+                      {partnerProfile?.importantDates?.map((dateInfo, index) => (
+                        <div key={index} className="date-input-row" style={{display: 'flex', gap: '12px', marginBottom: '8px', alignItems: 'center'}}>
+                          <input
+                            type="date"
+                            value={dateInfo.date}
+                            onChange={(e) => {
+                              const updatedDates = [...(partnerProfile?.importantDates || [])]
+                              updatedDates[index] = { ...updatedDates[index], date: e.target.value }
+                              updatePartnerProfile('importantDates', updatedDates)
+                            }}
+                            style={{flex: '1'}}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Occasion (e.g., Birthday, Anniversary)"
+                            value={dateInfo.description}
+                            onChange={(e) => {
+                              const updatedDates = [...(partnerProfile?.importantDates || [])]
+                              updatedDates[index] = { ...updatedDates[index], description: e.target.value }
+                              updatePartnerProfile('importantDates', updatedDates)
+                            }}
+                            style={{flex: '2'}}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updatedDates = partnerProfile?.importantDates?.filter((_, i) => i !== index) || []
+                              updatePartnerProfile('importantDates', updatedDates)
+                            }}
+                            style={{padding: '8px', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '4px', cursor: 'pointer'}}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentDates = partnerProfile?.importantDates || []
+                          updatePartnerProfile('importantDates', [...currentDates, { date: '', description: '' }])
+                        }}
+                        style={{padding: '8px 16px', background: '#f9fafb', border: '1px solid #d1d5db', borderRadius: '4px', cursor: 'pointer', marginTop: '8px'}}
+                      >
+                        ➕ Add Important Date
+                      </button>
+                    </div>
                   </div>
 
                   <div className="settings-field">
@@ -436,7 +467,7 @@ export default function SettingsPage() {
 
                   <div className="settings-info-box">
                     <p>
-                      <strong>Tip:</strong> The more details you add here, the better Little Things can help you plan personalized experiences and remember what matters most to your person.
+                      <strong>Tip:</strong> The more details you add here, the better Keeps can help you plan personalized experiences and remember what matters most to your person.
                     </p>
                   </div>
                 </div>
@@ -599,7 +630,7 @@ export default function SettingsPage() {
 
                   <div className="settings-info-box">
                     <p>
-                      <strong>Your Privacy Matters:</strong> Little Things is designed to keep your relationship data private and secure. 
+                      <strong>Your Privacy Matters:</strong> Keeps is designed to keep your relationship data private and secure. 
                       We never sell or share your personal information with third parties.
                     </p>
                   </div>

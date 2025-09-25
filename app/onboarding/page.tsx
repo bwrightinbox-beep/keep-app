@@ -148,6 +148,7 @@ export default function OnboardingPage() {
   if (loading) {
     return (
       <div className="page-wrapper">
+        <Navigation />
         <div className="container">
           <div className="card">
             <p>Loading...</p>
@@ -161,29 +162,38 @@ export default function OnboardingPage() {
   if (showEditPrompt) {
     return (
       <div className="page-wrapper">
+        <Navigation />
         <div className="container">
-          <div className="card" style={{ maxWidth: '500px', textAlign: 'center' }}>
-            <h1>
-              Welcome Back!
-            </h1>
-            <p>
-              You've already set up a profile for <strong>{formData.name}</strong>.
-              Would you like to edit the existing information or start fresh?
-            </p>
-          
-            <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-xl)' }}>
-              <button
-                className="btn btn-primary"
-                onClick={startEdit}
-              >
-                Edit {formData.name}'s Info
-              </button>
-              <button
-                className="btn btn-secondary"
-                onClick={startFresh}
-              >
-                Start Over
-              </button>
+          <div className="dashboard-header">
+            <h1>Welcome Back!</h1>
+            <p>You've already set up a profile for <strong>{formData.name}</strong>.</p>
+          </div>
+
+          <div className="dashboard-section">
+            <div className="ai-suggestions">
+              <div className="ai-placeholder">
+                <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                  👥
+                </div>
+                <div className="ai-placeholder-content">
+                  <h4>Profile Already Exists</h4>
+                  <p>Would you like to edit the existing information or start fresh?</p>
+                  <div className="welcome-actions" style={{ marginTop: '20px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <button
+                      className="nav-framer-button nav-framer-button-solid"
+                      onClick={startEdit}
+                    >
+                      Edit {formData.name}'s Info
+                    </button>
+                    <button
+                      className="nav-framer-button nav-framer-button-outline"
+                      onClick={startFresh}
+                    >
+                      Start Over
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -193,381 +203,315 @@ export default function OnboardingPage() {
 
   return (
     <div className="page-wrapper">
-      
-      <div>
-        <div>
-          <div>
-            <h2>
-              {isEditMode ? 'Edit Profile' : 'Setup Your Person'}
-            </h2>
-            <p>
-              Step {step} of 4 • {Math.round((step / 4) * 100)}% Complete
-            </p>
+      <Navigation />
+      <div className="container">
+        <div className="dashboard-header">
+          <h1>{isEditMode ? 'Edit Profile' : 'Setup Your Person'}</h1>
+          <p>Step {step} of 4 • {Math.round((step / 4) * 100)}% Complete</p>
+        </div>
+
+        {/* Step Progress Section */}
+        <div className="dashboard-section">
+          <div className="section-header">
+            <h2>Progress</h2>
           </div>
-          <Link href="/dashboard">
-            <button
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f9fafb'
-              e.currentTarget.style.borderColor = '#9ca3af'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'white'
-              e.currentTarget.style.borderColor = '#d1d5db'
-            }}>
-              ← Dashboard
-            </button>
-          </Link>
-        </div>
-
-        <div>
-          {[1, 2, 3, 4].map((stepNumber) => (
-            <div key={stepNumber}>
-              <div>
-                {stepNumber < step ? '✓' : stepNumber}
+          <div className="stats-grid">
+            {[
+              { label: 'Basic Info', step: 1 },
+              { label: 'Hobbies', step: 2 },
+              { label: 'Dates', step: 3 },
+              { label: 'Notes', step: 4 }
+            ].map(({ label, step: stepNum }) => (
+              <div key={stepNum} className={`stat-card ${stepNum <= step ? 'completed' : ''}`}>
+                <div className="stat-icon" style={{
+                  background: stepNum < step ? '#10b981' : stepNum === step ? 'black' : '#e5e7eb',
+                  color: stepNum <= step ? 'white' : '#9ca3af'
+                }}>
+                  {stepNum < step ? '✓' : stepNum}
+                </div>
+                <div className="stat-content">
+                  <div className="stat-label">{label}</div>
+                  <div className="stat-number" style={{ fontSize: '0.875rem' }}>
+                    {stepNum < step ? 'Complete' : stepNum === step ? 'Current' : 'Pending'}
+                  </div>
+                </div>
               </div>
-              {stepNumber < 4 && (
-                <div />
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <div>
-          {[
-            { label: 'Basic Info', step: 1 },
-            { label: 'Hobbies', step: 2 },
-            { label: 'Dates', step: 3 },
-            { label: 'Notes', step: 4 }
-          ].map(({ label, step: stepNum }) => (
-            <div key={stepNum}>
-              {label}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        
-        {step === 1 && (
-          <div>
-            <div>
-              <div>👥</div>
-              <h1>
-                {isEditMode ? `Edit ${formData.name}'s Profile` : 'Tell Us About Your Person'}
-              </h1>
-              <p>
-                {isEditMode 
+        {/* Form Section */}
+        <div className="dashboard-section">
+          {step === 1 && (
+            <>
+              <div className="section-header">
+                <h2>{isEditMode ? `Edit ${formData.name}'s Profile` : 'Tell Us About Your Person'}</h2>
+                <p>{isEditMode
                   ? 'Update your partner\'s information below.'
                   : 'Let\'s create a profile so we can help you remember what matters most to them.'
-                }
-              </p>
-            </div>
-            
-            <div>
-              <label>
-                What's your person's name? <span>*</span>
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter their name"
-                onFocus={(e) => e.target.style.borderColor = '#0066cc'}
-                onBlur={(e) => e.target.style.borderColor = formData.name ? '#10b981' : '#d1d5db'}
-              />
-              {!formData.name && (
-                <p>
-                  Name is required to continue
-                </p>
-              )}
-            </div>
-
-            <div>
-              <div>
-                <label>
-                  Favorite Color
-                </label>
-                <input
-                  type="text"
-                  value={formData.favoriteColor}
-                  onChange={(e) => setFormData(prev => ({ ...prev, favoriteColor: e.target.value }))}
-                  placeholder="e.g., Ocean Blue, Forest Green"
-                  onFocus={(e) => e.target.style.borderColor = '#0066cc'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
-                <p>
-                  💡 Great for gift ideas and decorating
-                </p>
+                }</p>
               </div>
-              
-              <div>
-                <label>
-                  Favorite Food
-                </label>
-                <input
-                  type="text"
-                  value={formData.favoriteFood}
-                  onChange={(e) => setFormData(prev => ({ ...prev, favoriteFood: e.target.value }))}
-                  placeholder="e.g., Italian Pasta, Thai Curry"
-                  onFocus={(e) => e.target.style.borderColor = '#0066cc'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
-                <p>
-                  🍽️ Perfect for planning date nights
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <h4>
-                💡 Pro Tip
-              </h4>
-              <p>
-                The more details you add, the better we can help you plan thoughtful surprises and remember what makes them happy!
-              </p>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div>
-            <div>
-              <div>🎯</div>
-              <h2>
-                Favorite Hobbies & Interests
-              </h2>
-              <p>
-                What does your person love doing in their free time? Select all that apply.
-              </p>
-            </div>
             
-            <div>
-              {FAVORITE_HOBBIES.map((hobby) => (
-                <label 
-                  key={hobby}
-                  onMouseEnter={(e) => {
-                    if (!formData.favoriteHobbies.includes(hobby)) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb'
-                      e.currentTarget.style.borderColor = '#9ca3af'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!formData.favoriteHobbies.includes(hobby)) {
-                      e.currentTarget.style.backgroundColor = 'white'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
-                    }
-                  }}
-                >
+              <div className="form-group">
+                <label htmlFor="person-name">What's your person's name? <span style={{color: 'red'}}>*</span></label>
+                <input
+                  id="person-name"
+                  type="text"
+                  className="form-input"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter their name"
+                  required
+                />
+                {!formData.name && (
+                  <div className="error-message">
+                    Name is required to continue
+                  </div>
+                )}
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="favorite-color">Favorite Color</label>
                   <input
-                    type="checkbox"
-                    checked={formData.favoriteHobbies.includes(hobby)}
-                    onChange={() => handleHobbyToggle(hobby)}
+                    id="favorite-color"
+                    type="text"
+                    className="form-input"
+                    value={formData.favoriteColor}
+                    onChange={(e) => setFormData(prev => ({ ...prev, favoriteColor: e.target.value }))}
+                    placeholder="e.g., Ocean Blue, Forest Green"
                   />
-                  <span>
-                    {hobby}
-                  </span>
-                  {formData.favoriteHobbies.includes(hobby) && (
-                    <span>
-                      ✓
-                    </span>
-                  )}
-                </label>
-              ))}
-            </div>
+                  <p className="form-hint">💡 Great for gift ideas and decorating</p>
+                </div>
 
-            <div>
-              <p>
-                💚 Selected {formData.favoriteHobbies.length} hobbies • Perfect for activity planning!
-              </p>
-            </div>
-          </div>
-        )}
+                <div className="form-group">
+                  <label htmlFor="favorite-food">Favorite Food</label>
+                  <input
+                    id="favorite-food"
+                    type="text"
+                    className="form-input"
+                    value={formData.favoriteFood}
+                    onChange={(e) => setFormData(prev => ({ ...prev, favoriteFood: e.target.value }))}
+                    placeholder="e.g., Italian Pasta, Thai Curry"
+                  />
+                  <p className="form-hint">🍽️ Perfect for planning date nights</p>
+                </div>
+              </div>
 
-        {step === 3 && (
-          <div>
-            <div>
-              <div>📅</div>
-              <h2>
-                Important Dates
-              </h2>
-              <p>
-                Add birthdays, anniversaries, and other special occasions so you never miss celebrating!
-              </p>
-            </div>
+              <div className="ai-suggestions" style={{marginTop: '20px'}}>
+                <div className="ai-placeholder">
+                  <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                    💡
+                  </div>
+                  <div className="ai-placeholder-content">
+                    <h4>Pro Tip</h4>
+                    <p>The more details you add, the better we can help you plan thoughtful surprises and remember what makes them happy!</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <div className="section-header">
+                <h2>Favorite Hobbies & Interests</h2>
+                <p>What does your person love doing in their free time? Select all that apply.</p>
+              </div>
             
-            <div>
-              {formData.importantDates.map((dateInfo, index) => (
-                <div key={index}>
-                  <div>
-                    <div>
-                      <label>
-                        Date
-                      </label>
-                      <input
-                        type="date"
-                        value={dateInfo.date}
-                        onChange={(e) => handleDateChange(index, 'date', e.target.value)}
-                      />
+              <div className="stats-grid" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))'}}>
+                {FAVORITE_HOBBIES.map((hobby) => (
+                  <label
+                    key={hobby}
+                    className={`stat-card ${formData.favoriteHobbies.includes(hobby) ? 'selected' : ''}`}
+                    style={{
+                      cursor: 'pointer',
+                      backgroundColor: formData.favoriteHobbies.includes(hobby) ? '#f0f9ff' : 'white',
+                      borderColor: formData.favoriteHobbies.includes(hobby) ? '#0066cc' : '#e5e7eb'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.favoriteHobbies.includes(hobby)}
+                      onChange={() => handleHobbyToggle(hobby)}
+                      style={{ display: 'none' }}
+                    />
+                    <div className="stat-content">
+                      <div className="stat-label">{hobby}</div>
+                      {formData.favoriteHobbies.includes(hobby) && (
+                        <div className="stat-number" style={{ fontSize: '1.2rem' }}>✓</div>
+                      )}
                     </div>
-                    <div>
-                      <label>
-                        What's the occasion?
-                      </label>
-                      <input
-                        type="text"
-                        value={dateInfo.description}
-                        onChange={(e) => handleDateChange(index, 'description', e.target.value)}
-                        placeholder="e.g., Birthday, Anniversary, First Date"
-                      />
+                  </label>
+                ))}
+              </div>
+
+              <div className="ai-suggestions" style={{marginTop: '20px'}}>
+                <div className="ai-placeholder">
+                  <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                    💚
+                  </div>
+                  <div className="ai-placeholder-content">
+                    <h4>Great Choice!</h4>
+                    <p>Selected {formData.favoriteHobbies.length} hobbies • Perfect for activity planning!</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {step === 3 && (
+            <>
+              <div className="section-header">
+                <h2>Important Dates</h2>
+                <p>Add birthdays, anniversaries, and other special occasions so you never miss celebrating!</p>
+              </div>
+
+              {formData.importantDates.map((dateInfo, index) => (
+                <div key={index} className="memory-card" style={{marginBottom: '16px'}}>
+                  <div className="memory-content">
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor={`date-${index}`}>Date</label>
+                        <input
+                          id={`date-${index}`}
+                          type="date"
+                          className="form-input"
+                          value={dateInfo.date}
+                          onChange={(e) => handleDateChange(index, 'date', e.target.value)}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor={`occasion-${index}`}>What's the occasion?</label>
+                        <input
+                          id={`occasion-${index}`}
+                          type="text"
+                          className="form-input"
+                          value={dateInfo.description}
+                          onChange={(e) => handleDateChange(index, 'description', e.target.value)}
+                          placeholder="e.g., Birthday, Anniversary, First Date"
+                        />
+                      </div>
+                    </div>
+                    <div style={{marginTop: '12px', display: 'flex', justifyContent: 'flex-end'}}>
+                      <button
+                        type="button"
+                        onClick={() => removeDateField(index)}
+                        className="nav-framer-button nav-framer-button-outline"
+                        style={{background: '#fee2e2', color: '#dc2626', fontSize: '0.875rem'}}
+                      >
+                        🗑️ Remove
+                      </button>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => removeDateField(index)}
-                  >
-                    🗑️ Remove
-                  </button>
                 </div>
               ))}
-              
-              <button
-                type="button"
-                onClick={addDateField}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#eff6ff'
-                  e.currentTarget.style.borderColor = '#2563eb'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white'
-                  e.currentTarget.style.borderColor = '#0066cc'
-                }}
-              >
-                ➕ Add Important Date
-              </button>
-            </div>
 
-            {formData.importantDates.length > 0 ? (
-              <div>
-                <p>
-                  🎉 Great! We'll remind you about these special dates
-                </p>
+              <div style={{display: 'flex', justifyContent: 'center', marginBottom: '20px'}}>
+                <button
+                  type="button"
+                  onClick={addDateField}
+                  className="nav-framer-button nav-framer-button-outline"
+                >
+                  ➕ Add Important Date
+                </button>
               </div>
-            ) : (
-              <div>
-                <p>
-                  💡 Adding dates helps you never miss important celebrations
-                </p>
+
+              <div className="ai-suggestions">
+                <div className="ai-placeholder">
+                  <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                    {formData.importantDates.length > 0 ? '🎉' : '💡'}
+                  </div>
+                  <div className="ai-placeholder-content">
+                    <h4>{formData.importantDates.length > 0 ? 'Great!' : 'Pro Tip'}</h4>
+                    <p>{formData.importantDates.length > 0
+                      ? "We'll remind you about these special dates"
+                      : "Adding dates helps you never miss important celebrations"
+                    }</p>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-        )}
-
-        {step === 4 && (
-          <div>
-            <div>
-              <div>📝</div>
-              <h2>
-                Additional Notes
-              </h2>
-              <p>
-                Add any other special details that help make your person feel truly understood.
-              </p>
-            </div>
-            
-            <div>
-              <label>
-                Special Notes & Details
-              </label>
-              <textarea
-                value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                placeholder="e.g., loves handwritten notes, prefers experiences over gifts, has a sweet tooth, allergic to seafood, enjoys surprise dates..."
-                rows={5}
-                onFocus={(e) => e.target.style.borderColor = '#0066cc'}
-                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-              />
-              <p>
-                💡 Think about preferences, dislikes, allergies, or special details that make them unique
-              </p>
-            </div>
-
-            <div>
-              <div>🎉</div>
-              <h3>
-                You're All Set!
-              </h3>
-              <p>
-                We'll use this information to help you remember what matters most and suggest thoughtful ways to show you care. 
-                You can always update these details anytime in settings.
-              </p>
-            </div>
-
-            <div>
-              <p>
-                ✨ Ready to start building stronger relationships with Little Things!
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div>
-          <button
-            onClick={prevStep}
-            disabled={step === 1}
-            onMouseEnter={(e) => {
-              if (step !== 1) {
-                e.currentTarget.style.backgroundColor = '#f9fafb'
-                e.currentTarget.style.borderColor = '#9ca3af'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (step !== 1) {
-                e.currentTarget.style.backgroundColor = 'white'
-                e.currentTarget.style.borderColor = '#e5e7eb'
-              }
-            }}
-          >
-            {step !== 1 && (
-              <>
-                ← Previous
-              </>
-            )}
-          </button>
-          
-          {step < 4 ? (
-            <button
-              onClick={nextStep}
-              disabled={step === 1 && !formData.name.trim()}
-              onMouseEnter={(e) => {
-                if (!(step === 1 && !formData.name.trim())) {
-                  e.currentTarget.style.backgroundColor = '#2563eb'
-                  e.currentTarget.style.transform = 'translateY(-1px)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!(step === 1 && !formData.name.trim())) {
-                  e.currentTarget.style.backgroundColor = '#0066cc'
-                  e.currentTarget.style.transform = 'translateY(0px)'
-                }
-              }}
-            >
-              Next →
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0px)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)'
-              }}
-            >
-              🎉 Complete Setup
-            </button>
+            </>
           )}
+
+          {step === 4 && (
+            <>
+              <div className="section-header">
+                <h2>Additional Notes</h2>
+                <p>Add any other special details that help make your person feel truly understood.</p>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="special-notes">Special Notes & Details</label>
+                <textarea
+                  id="special-notes"
+                  className="form-textarea"
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="e.g., loves handwritten notes, prefers experiences over gifts, has a sweet tooth, allergic to seafood, enjoys surprise dates..."
+                  rows={5}
+                />
+                <p className="form-hint">💡 Think about preferences, dislikes, allergies, or special details that make them unique</p>
+              </div>
+
+              <div className="ai-suggestions">
+                <div className="ai-placeholder">
+                  <div className="ai-placeholder-icon" style={{ background: '#10b981' }}>
+                    🎉
+                  </div>
+                  <div className="ai-placeholder-content">
+                    <h4>You're All Set!</h4>
+                    <p>We'll use this information to help you remember what matters most and suggest thoughtful ways to show you care. You can always update these details anytime in settings.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="ai-suggestions" style={{marginTop: '20px'}}>
+                <div className="ai-placeholder">
+                  <div className="ai-placeholder-icon" style={{ background: 'black' }}>
+                    ✨
+                  </div>
+                  <div className="ai-placeholder-content">
+                    <h4>Ready to Go!</h4>
+                    <p>Ready to start building stronger relationships with Keeps!</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="dashboard-section">
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between' }}>
+            <button
+              onClick={prevStep}
+              disabled={step === 1}
+              className={step === 1 ? 'nav-framer-button nav-framer-button-outline' : 'nav-framer-button nav-framer-button-outline'}
+              style={{ opacity: step === 1 ? 0.5 : 1 }}
+            >
+              {step !== 1 && '← Previous'}
+            </button>
+
+            {step < 4 ? (
+              <button
+                onClick={nextStep}
+                disabled={step === 1 && !formData.name.trim()}
+                className="nav-framer-button nav-framer-button-solid"
+                style={{ opacity: (step === 1 && !formData.name.trim()) ? 0.5 : 1 }}
+              >
+                Next →
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                className="nav-framer-button nav-framer-button-solid"
+                style={{ background: '#10b981' }}
+              >
+                🎉 Complete Setup
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

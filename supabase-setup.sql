@@ -1,4 +1,4 @@
--- Little Things App Database Schema
+-- Keeps App Database Schema
 -- Run this SQL in your Supabase SQL Editor
 
 -- Create users table (extends Supabase auth.users)
@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS partner_profiles (
   name VARCHAR(255) NOT NULL,
   birthday TEXT,
   anniversary TEXT,
+  favorite_color VARCHAR(100) DEFAULT '',
+  favorite_food VARCHAR(200) DEFAULT '',
+  favorite_hobbies JSONB DEFAULT '[]'::jsonb,
+  notes TEXT DEFAULT '',
+  important_dates JSONB DEFAULT '[]'::jsonb,
   love_languages JSONB DEFAULT '[]'::jsonb,
   favorite_things TEXT,
   dislikes TEXT,
